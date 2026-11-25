@@ -1,0 +1,1024 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>LIUGN Admin Control — Static</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Barlow:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    color-scheme: light dark;
+    --bg:#141311; --surface:#1E1D1A; --surface2:#26241F; --surface3:#2E2B24;
+    --text:#EDE8DA; --dim:#A39E8F; --faint:#7C7768;
+    --border:#3A372E; --accent:#C9A227; --accent2:#E8C84A; --gold-dim:#2A2517;
+    --green:#2FA36B; --green-t:#3ECF7A; --green-bg:#123324;
+    --amber:#D98E1F; --amber-t:#F2B84B; --amber-bg:#3A2A0E;
+    --red:#D64541; --red-t:#FF9D97; --red-bg:#3A1512;
+    --disp:"Cinzel", Georgia, serif;
+    --body:"Barlow", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#EFEAD9; --surface:#FFFEF8; --surface2:#F5F0DD; --surface3:#EFE7CE;
+      --text:#1C1A14; --dim:#6E6858; --faint:#8A8471;
+      --border:#D8D0B8; --gold-dim:#FBF3D0;
+      --green-bg:#DDF2E4; --amber-bg:#FBEED3; --red-bg:#FBE3E1;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45}
+  button,[role="button"],select,input,textarea{font-family:var(--body)}
+  button,[role="button"],select,summary,input:not([type="checkbox"],[type="radio"]){min-height:2.5rem}
+  h1,h2,h3{margin:0}
+  .wrap{max-width:1024px;margin:0 auto;padding:0 16px}
+  .font-display{font-family:var(--disp)}
+
+  /* ---------- header ---------- */
+  header.top{background:var(--surface);border-bottom:1px solid var(--border);padding:20px 0 14px}
+  .brand-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand-row .titles{flex:1;min-width:200px}
+  .brand-name{font-family:var(--disp);font-weight:800;letter-spacing:.18em;font-size:24px;color:var(--accent);line-height:1}
+  .brand-sub{font-size:13px;color:var(--dim);margin-top:5px}
+  .sys-pill{font-size:11.5px;font-weight:700;padding:8px 13px;border-radius:999px;border:1px solid var(--border);white-space:nowrap}
+  .sys-pill.live{background:var(--green-bg);color:var(--green-t)}
+  .sys-pill.paused{background:var(--red-bg);color:var(--red-t)}
+  .dl-btn{background:var(--surface2);border:1px solid var(--accent);color:var(--accent2);border-radius:999px;padding:9px 16px;font-weight:700;font-size:13.5px;cursor:pointer;white-space:nowrap}
+  .banner{margin-top:14px;border-radius:12px;padding:11px 14px;font-size:14.5px}
+  .banner.maint{background:var(--red-bg);color:var(--red-t);border:1px solid var(--red);font-weight:600}
+  .banner.cast{background:var(--gold-dim);border:1px solid var(--accent);color:var(--text)}
+
+  /* ---------- live tracking bar ---------- */
+  .livebar{position:sticky;top:0;z-index:25;background:var(--bg);border-bottom:1px solid var(--border)}
+  .livebar-in{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;padding:9px 0;font-size:13.5px}
+  .live-dot{display:inline-flex;align-items:center;gap:7px;font-weight:700;letter-spacing:.08em;font-size:12.5px}
+  .live-dot i{width:9px;height:9px;border-radius:50%;background:var(--red);display:inline-block;animation:blink 1.2s infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .livebar .cell{color:var(--dim)}
+  .livebar .cell b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+  .livebar .spacer{flex:1}
+
+  /* ---------- tabs ---------- */
+  nav.tabs{position:sticky;top:43px;z-index:24;background:var(--bg);border-bottom:1px solid var(--border);padding:9px 0}
+  .tabs-in{display:flex;flex-wrap:wrap;gap:7px}
+  .tab{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:9px 16px;font-weight:600;font-size:14.5px;cursor:pointer}
+  .tab.active{background:var(--accent);color:#141310;border-color:var(--accent)}
+
+  main{padding:20px 0 44px}
+  section.page{display:none}
+  section.page.on{display:block}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:16px}
+  .card h2,.card h3{font-family:var(--disp);font-weight:700;letter-spacing:.04em}
+  .card h2{font-size:19px}
+  .card h3{font-size:16.5px}
+  .hint{font-size:14px;color:var(--dim)}
+  .gold-btn{background:var(--accent);color:#141310;border:0;border-radius:999px;padding:11px 20px;font-weight:700;font-size:14.5px;cursor:pointer}
+  .ghost-btn{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:999px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer}
+  .danger-btn{background:transparent;color:var(--red-t);border:1px solid var(--red);border-radius:999px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer}
+  .danger-solid{background:var(--red);color:#fff;border:0;border-radius:999px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer}
+  input.in,select.in,textarea.in{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:11px 13px;font-size:15px;outline:none}
+  input.in:focus,select.in:focus,textarea.in:focus{border-color:var(--accent)}
+  label.fl{display:block;font-size:12.5px;font-weight:700;margin:0 0 5px;letter-spacing:.03em}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  @media (max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+  .mt{margin-top:14px}.mb{margin-bottom:12px}
+  .rowflex{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+
+  /* stat strip */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:16px}
+  @media (max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 8px;text-align:center}
+  .stat b{display:block;font-size:27px;font-weight:800;line-height:1.1}
+  .stat span{font-size:11.5px;font-weight:600;color:var(--dim)}
+
+  /* site cards */
+  .site-grid{display:grid;gap:14px;grid-template-columns:repeat(3,1fr)}
+  @media (max-width:900px){.site-grid{grid-template-columns:1fr}}
+  .site-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:17px;display:flex;flex-direction:column;gap:11px}
+  .site-card.warn{border-color:var(--amber)}
+  .site-card.bad{border-color:var(--red)}
+  .site-kind{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--dim)}
+  .site-name{font-family:var(--disp);font-weight:700;font-size:17.5px;line-height:1.25}
+  .status-pill{font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+  .status-pill i{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block}
+  .st-online{background:var(--green-bg);color:var(--green-t)}
+  .st-maintenance{background:var(--amber-bg);color:var(--amber-t)}
+  .st-offline{background:var(--red-bg);color:var(--red-t)}
+  .site-desc{font-size:14.5px;color:var(--dim);flex:1}
+  .site-meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;font-weight:600;color:var(--dim)}
+  .maint-note{font-size:13px;border-radius:9px;padding:8px 11px;background:var(--amber-bg);color:var(--amber-t)}
+  .seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .seg button{border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:9px;padding:9px 4px;font-size:12.5px;font-weight:700;text-transform:capitalize;cursor:pointer;min-height:2.5rem}
+  .seg button.sel-online{background:var(--green);color:#fff;border-color:var(--green)}
+  .seg button.sel-maintenance{background:var(--amber);color:#fff;border-color:var(--amber)}
+  .seg button.sel-offline{background:var(--red);color:#fff;border-color:var(--red)}
+  .link-btn{background:none;border:0;color:var(--accent2);font-weight:700;font-size:14.5px;cursor:pointer;padding:6px 0;text-align:left;min-height:2.25rem}
+
+  /* switch (button-based toggle) */
+  .switch-row{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 14px;cursor:pointer;width:100%;text-align:left;color:var(--text)}
+  .switch-row .t b{display:block;font-size:14.5px}
+  .switch-row .t span{font-size:12.5px;color:var(--dim)}
+  .sw{flex:0 0 auto;width:52px;height:30px;border-radius:999px;background:var(--surface3);border:1px solid var(--border);position:relative;transition:background .2s}
+  .sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--dim);transition:left .2s,background .2s}
+  .switch-row[aria-checked="true"] .sw{background:var(--gold-dim);border-color:var(--accent)}
+  .switch-row[aria-checked="true"] .sw::after{left:25px;background:var(--accent)}
+
+  /* live tracking table */
+  .track-row{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;padding:13px 0;border-top:1px solid var(--border)}
+  .track-row:first-of-type{border-top:0}
+  .track-row .nm{font-weight:700;min-width:170px}
+  .track-row .cell{font-size:13.5px;color:var(--dim)}
+  .track-row .cell b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+  .pulse-dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px}
+  .pulse-on{background:var(--green-t);animation:blink 1.6s infinite}
+  .pulse-maint{background:var(--amber-t)}
+  .pulse-off{background:var(--red-t)}
+
+  /* announcements + moderation lists */
+  .item-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:11px}
+  .item-card.hidden-item{opacity:.55}
+  .item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .item-title{font-weight:700;font-size:16px}
+  .pri{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-left:7px}
+  .pri-urgent{color:var(--red-t)} .pri-important{color:var(--amber-t)} .pri-normal{color:var(--dim)}
+  .item-sub{font-size:13px;color:var(--dim);margin-top:2px}
+  .item-body{font-size:15px;margin-top:9px}
+  .small-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:8px 15px;font-size:13px;font-weight:700;cursor:pointer}
+  .small-btn.sel{background:var(--accent);color:#141310;border-color:var(--accent)}
+  .small-danger{background:transparent;border:1px solid var(--red);color:var(--red-t);border-radius:999px;padding:8px 15px;font-size:13px;font-weight:700;cursor:pointer}
+  .mod-badge{font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;white-space:nowrap}
+  .mb-banned{background:var(--red-bg);color:var(--red-t)}
+  .mb-cleared{background:var(--green-bg);color:var(--green-t)}
+  .mb-watching{background:var(--amber-bg);color:var(--amber-t)}
+
+  /* activity */
+  .log-row{display:flex;gap:12px;padding:11px 2px;border-top:1px solid var(--border);font-size:14.5px;align-items:baseline}
+  .log-row:first-of-type{border-top:0}
+  .log-row .diamond{color:var(--accent);flex:0 0 auto}
+  .log-row .what{flex:1;min-width:0}
+  .log-row .what b{font-weight:700}
+  .log-row .what span{color:var(--dim)}
+  .log-row time{font-size:12.5px;color:var(--dim);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .empty-note{text-align:center;padding:30px 10px;color:var(--dim);font-size:14.5px}
+
+  /* ---------- owner-key gate ---------- */
+  #app{display:none}
+  #app.on{display:block}
+  #gate{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto;
+    background:radial-gradient(900px 500px at 50% -10%, var(--gold-dim) 0%, transparent 60%), var(--bg)}
+  #gate.hidden{display:none}
+  .gate-card{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--accent);border-radius:16px;padding:34px 30px 28px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .gate-card h1{font-family:var(--disp);font-size:25px;letter-spacing:.14em;color:var(--accent);line-height:1.1}
+  .gate-card .gname{font-family:var(--disp);font-size:15px;letter-spacing:.06em;color:var(--text);margin-top:8px}
+  .gate-card .gsub{font-size:12px;letter-spacing:.3em;color:var(--dim);margin-top:5px;font-weight:700}
+  .gate-card p{color:var(--dim);font-size:15px;margin:15px 0 18px;text-align:left}
+  .gate-card label{display:block;text-align:left;font-size:12.5px;font-weight:700;letter-spacing:.12em;color:var(--accent);margin-bottom:6px}
+  #keyInput,#userInput{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:16px;letter-spacing:.02em;padding:12px 14px}
+  #keyInput{letter-spacing:.1em}
+  #keyInput:focus,#userInput:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+  #keyInput:disabled,#userInput:disabled{opacity:.55}
+  #unlockBtn{width:100%;margin-top:14px;background:var(--accent);color:#141310;border:0;border-radius:10px;font-weight:800;font-size:16px;letter-spacing:.05em;padding:13px;cursor:pointer}
+  #unlockBtn:disabled{opacity:.55;cursor:not-allowed}
+  #keyError{display:none;margin-top:12px;color:var(--red-t);font-size:14px;font-weight:600;text-align:left}
+  .gate-note{margin-top:16px;font-size:13px;color:var(--dim);text-align:left;border-top:1px solid var(--border);padding-top:13px}
+  .gate-foot{margin-top:14px;font-size:11.5px;color:var(--faint);letter-spacing:.14em}
+  .shake{animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+  /* ---------- roles ---------- */
+  .role-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px}
+  .role-card.owner{border-color:var(--accent)}
+  .role-head{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+  .role-title{font-family:var(--disp);font-weight:700;font-size:18px}
+  .role-tag{font-size:11.5px;font-weight:800;letter-spacing:.1em;padding:6px 12px;border-radius:999px;text-transform:uppercase}
+  .role-tag.full{background:var(--gold-dim);color:var(--accent2);border:1px solid var(--accent)}
+  .role-tag.restricted{background:var(--surface2);color:var(--dim);border:1px solid var(--border)}
+  .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  @media (max-width:640px){.role-grid{grid-template-columns:1fr}}
+  .role-list{list-style:none;margin:0;padding:0;font-size:14.5px}
+  .role-list li{padding:7px 0 7px 24px;position:relative;border-top:1px solid var(--border)}
+  .role-list li:first-child{border-top:0}
+  .role-list.can li::before{content:"✓";position:absolute;left:2px;color:var(--green-t);font-weight:800}
+  .role-list.cant li::before{content:"✕";position:absolute;left:2px;color:var(--red-t);font-weight:800}
+  .role-list-h{font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--dim);margin-bottom:4px}
+
+  .edit-box{margin-top:14px;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:15px}
+  footer.site{border-top:1px solid var(--border);padding:18px 0 30px;color:var(--faint);font-size:13px}
+  #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(90px);z-index:60;background:var(--surface3);border:1px solid var(--accent);color:var(--text);padding:12px 20px;border-radius:12px;font-weight:600;font-size:15px;opacity:0;transition:.3s;max-width:92vw;text-align:center;pointer-events:none;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+  #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media (prefers-reduced-motion: reduce){.live-dot i,.pulse-on{animation:none}}
+</style>
+</head>
+<body>
+
+<!-- ================= OWNER-KEY GATE ================= -->
+<div id="gate">
+  <div class="gate-card" id="gateCard">
+    <div aria-hidden="true" style="display:flex;justify-content:center;margin-bottom:12px">
+      <svg width="58" height="48" viewBox="0 0 64 48" role="img" aria-label="Sanctum logo: a single sword balanced on top of two pillars">
+        <circle cx="32" cy="3.5" r="2.6" fill="#C9A227" stroke="#8A6D14" stroke-width="0.6"/>
+        <rect x="30.2" y="6" width="3.6" height="6" rx="1" fill="#5A4632"/>
+        <rect x="13" y="12" width="38" height="3.4" rx="1.7" fill="#C9A227" stroke="#8A6D14" stroke-width="0.5"/>
+        <circle cx="13" cy="13.7" r="1.8" fill="#E8C84A"/><circle cx="51" cy="13.7" r="1.8" fill="#E8C84A"/>
+        <path d="M29.6 15.4 L34.4 15.4 L32 24 Z" fill="#D9D9DE" stroke="#8A8A92" stroke-width="0.5"/>
+        <g fill="#9A958A" stroke="#5A564C" stroke-width="0.6">
+          <rect x="7" y="17" width="13" height="3.4" rx="0.8"/><rect x="9" y="20.4" width="9" height="19"/><rect x="7" y="39.4" width="13" height="3.4" rx="0.8"/>
+          <rect x="44" y="17" width="13" height="3.4" rx="0.8"/><rect x="46" y="20.4" width="9" height="19"/><rect x="44" y="39.4" width="13" height="3.4" rx="0.8"/>
+        </g>
+        <path d="M12 24 L14.5 28 L12.5 32" fill="none" stroke="#4A463E" stroke-width="0.8"/>
+        <path d="M51 26 L49 30 L51.5 34" fill="none" stroke="#4A463E" stroke-width="0.8"/>
+        <g fill="#E8C84A" stroke="#C9A227" stroke-width="0.5">
+          <circle cx="25" cy="41" r="2.4"/><circle cx="30" cy="43" r="2.8"/><circle cx="35" cy="41" r="2.4"/><circle cx="39.5" cy="43.4" r="2"/><circle cx="21" cy="43.6" r="1.9"/>
+        </g>
+        <g fill="#FFF3B0"><circle cx="27" cy="38.8" r="0.7"/><circle cx="33" cy="39.6" r="0.7"/><circle cx="37.5" cy="38.6" r="0.6"/></g>
+      </svg>
+    </div>
+    <h1>SANCTUM</h1>
+    <div class="gname">Liugn — 𐌻𐌹𐌿𐌲𐌽 · Admin Control</div>
+    <div class="gsub">OFFICIAL ADMINISTRATION</div>
+    <p>This is the official administration site for the game <strong>Liugn — 𐌻𐌹𐌿𐌲𐌽</strong>, owned and operated by the game's creator. It controls the official LIUGN websites — the Game Site, the Clothes Studio, and the Cars Studio. Access is restricted to the owner.</p>
+    <form id="gateForm" autocomplete="off" novalidate>
+      <label for="userInput">USERNAME</label>
+      <input id="userInput" type="email" placeholder="Enter your email" aria-label="Username" autocomplete="username" />
+      <label for="keyInput" style="margin-top:14px">PASSWORD</label>
+      <input id="keyInput" type="password" inputmode="numeric" placeholder="Enter password" aria-label="Password" autocomplete="current-password" />
+      <div id="keyError">Enter your username and password to open Admin Control.</div>
+      <button id="unlockBtn" type="submit">Unlock Admin Control</button>
+    </form>
+    <p class="gate-note">Only the owner holds the username and password to this room. Partial administrators are given separate, restricted access by the owner — they can work on buildings only, and they never enter through this gate. This door opens only for the owner's login; a wrong login shows access denied, and after three tries the login locks out.</p>
+    <div class="gate-foot">SANCTUM · OWNER ACCESS ONLY</div>
+  </div>
+</div>
+
+<div id="app">
+<header class="top">
+  <div class="wrap">
+    <div class="brand-row">
+      <div aria-hidden="true">
+        <svg width="58" height="48" viewBox="0 0 64 48" role="img" aria-label="Sanctum logo: a single sword balanced on top of two pillars">
+          <circle cx="32" cy="3.5" r="2.6" fill="#C9A227" stroke="#8A6D14" stroke-width="0.6"/>
+          <rect x="30.2" y="6" width="3.6" height="6" rx="1" fill="#5A4632"/>
+          <rect x="13" y="12" width="38" height="3.4" rx="1.7" fill="#C9A227" stroke="#8A6D14" stroke-width="0.5"/>
+          <circle cx="13" cy="13.7" r="1.8" fill="#E8C84A"/><circle cx="51" cy="13.7" r="1.8" fill="#E8C84A"/>
+          <path d="M29.6 15.4 L34.4 15.4 L32 24 Z" fill="#D9D9DE" stroke="#8A8A92" stroke-width="0.5"/>
+          <g fill="#9A958A" stroke="#5A564C" stroke-width="0.6">
+            <rect x="7" y="17" width="13" height="3.4" rx="0.8"/><rect x="9" y="20.4" width="9" height="19"/><rect x="7" y="39.4" width="13" height="3.4" rx="0.8"/>
+            <rect x="44" y="17" width="13" height="3.4" rx="0.8"/><rect x="46" y="20.4" width="9" height="19"/><rect x="44" y="39.4" width="13" height="3.4" rx="0.8"/>
+          </g>
+          <path d="M12 24 L14.5 28 L12.5 32" fill="none" stroke="#4A463E" stroke-width="0.8"/>
+          <path d="M51 26 L49 30 L51.5 34" fill="none" stroke="#4A463E" stroke-width="0.8"/>
+          <g fill="#E8C84A" stroke="#C9A227" stroke-width="0.5">
+            <circle cx="25" cy="41" r="2.4"/><circle cx="30" cy="43" r="2.8"/><circle cx="35" cy="41" r="2.4"/><circle cx="39.5" cy="43.4" r="2"/><circle cx="21" cy="43.6" r="1.9"/>
+          </g>
+          <g fill="#FFF3B0"><circle cx="27" cy="38.8" r="0.7"/><circle cx="33" cy="39.6" r="0.7"/><circle cx="37.5" cy="38.6" r="0.6"/></g>
+        </svg>
+      </div>
+      <div class="titles">
+        <div class="brand-name">SANCTUM</div>
+        <div class="brand-sub">LIUGN Admin Control — every website, one throne</div>
+      </div>
+      <button class="dl-btn" id="dlBtn" type="button">Download this page (.html)</button>
+      <span class="sys-pill live" id="sysPill">✓ SYSTEMS LIVE</span>
+      <button class="ghost-btn" id="lockBtn" type="button">Lock Room</button>
+    </div>
+    <div class="banner maint" id="maintBanner" style="display:none">Global Maintenance is ON — all sites are paused for players. Turn it off in Global Controls when you're ready.</div>
+    <div class="banner cast" id="castBanner" style="display:none"></div>
+  </div>
+</header>
+
+<div class="livebar">
+  <div class="wrap livebar-in">
+    <span class="live-dot"><i></i>LIVE TRACKING</span>
+    <span class="cell">Clock <b id="liveClock">--:--:--</b></span>
+    <span class="cell">Session <b id="liveSession">0:00</b></span>
+    <span class="cell">Sites up <b id="liveUp">–</b></span>
+    <span class="spacer"></span>
+    <span class="cell">Last event <b id="liveLast">—</b></span>
+  </div>
+</div>
+
+<nav class="tabs" aria-label="Admin sections">
+  <div class="wrap tabs-in" id="tabBar"></div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ================= OVERVIEW ================= -->
+  <section class="page" id="page-overview">
+    <div class="stats" id="statStrip"></div>
+
+    <div class="card">
+      <h3>Live Tracking — Your Sites Right Now</h3>
+      <p class="hint" style="margin:6px 0 4px">Every site is re-checked every 10 seconds while this room is open. Status, time in status, and the last change — tracked live.</p>
+      <div id="trackList"></div>
+    </div>
+
+    <h2 class="font-display" style="font-size:19px;letter-spacing:.04em">Your Websites</h2>
+    <p class="hint" style="margin:5px 0 13px">Tap a status to change it instantly. Full settings live in the Sites tab.</p>
+    <div class="site-grid" id="siteGrid"></div>
+    <div id="noSites"></div>
+
+    <div class="card mt">
+      <h3>Quick Actions — All Sites at Once</h3>
+      <div class="rowflex mt">
+        <button class="ghost-btn" id="allOnline" type="button" style="background:var(--green-bg);color:var(--green-t);border-color:var(--green)">All Online</button>
+        <button class="ghost-btn" id="allMaint" type="button" style="background:var(--amber-bg);color:var(--amber-t);border-color:var(--amber)">All Maintenance</button>
+        <button class="ghost-btn" id="allOff" type="button" style="background:var(--red-bg);color:var(--red-t);border-color:var(--red)">All Offline</button>
+      </div>
+      <div class="mt">
+        <button class="switch-row" id="globalMaintSwitch" type="button" role="switch" aria-checked="false">
+          <span class="t"><b>Global Maintenance Master Switch</b><span>Pauses every site at once, no matter their individual status.</span></span>
+          <span class="sw" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Global Controls — Apply Everywhere</h3>
+      <label class="fl mt" for="gAnn">Broadcast message (shows on all sites)</label>
+      <input class="in" id="gAnn" placeholder="e.g. Big update tonight at 8pm — new cars drop!" />
+      <div class="grid3 mt">
+        <div><label class="fl" for="gCurr">Currency name</label><input class="in" id="gCurr" /></div>
+        <div><label class="fl" for="gStart">New player coins</label><input class="in" id="gStart" type="number" min="0" /></div>
+        <div><label class="fl" for="gDaily">Daily reward</label><input class="in" id="gDaily" type="number" min="0" /></div>
+      </div>
+      <div class="rowflex mt">
+        <button class="gold-btn" id="gSave" type="button">Save Global Controls</button>
+        <button class="ghost-btn" id="gApply" type="button">Apply coin defaults to all sites</button>
+      </div>
+      <p class="hint" style="margin-top:9px">“Apply defaults” copies the currency name, starting coins, and daily reward above onto every site in one go.</p>
+    </div>
+
+    <div class="card">
+      <div class="rowflex" style="justify-content:space-between">
+        <h3>Recent Activity</h3>
+        <button class="link-btn" id="seeAllActivity" type="button">See all →</button>
+      </div>
+      <div id="recentLog"></div>
+    </div>
+  </section>
+
+  <!-- ================= SITES ================= -->
+  <section class="page" id="page-sites">
+    <div class="rowflex" style="justify-content:space-between;margin-bottom:14px">
+      <h2 class="font-display" style="font-size:19px">Manage Sites</h2>
+      <button class="gold-btn" id="addSiteToggle" type="button">+ Add Website</button>
+    </div>
+    <div class="card" id="addSiteCard" style="display:none;border-color:var(--accent)">
+      <h3>Add a Website</h3>
+      <div class="grid2 mt">
+        <div><label class="fl" for="newName">Name</label><input class="in" id="newName" placeholder="e.g. LIUGN Racing" /></div>
+        <div><label class="fl" for="newSlug">Slug / ID</label><input class="in" id="newSlug" placeholder="liugn-racing" /></div>
+      </div>
+      <div class="mt"><label class="fl" for="newDesc">Description</label><input class="in" id="newDesc" /></div>
+      <div class="mt"><label class="fl" for="newKind">Type</label>
+        <select class="in" id="newKind"><option>Game Site</option><option>Clothes Studio</option><option>Cars Studio</option><option>Website</option><option>Community</option></select></div>
+      <button class="gold-btn mt" id="addSiteBtn" type="button">Add to Admin Control</button>
+    </div>
+    <div id="sitesList"></div>
+  </section>
+
+  <!-- ================= ANNOUNCE ================= -->
+  <section class="page" id="page-announce">
+    <div class="card">
+      <h2>Post an Announcement</h2>
+      <div class="mt"><label class="fl" for="annTitle">Title</label><input class="in" id="annTitle" placeholder="e.g. New cars just dropped!" /></div>
+      <div class="mt"><label class="fl" for="annBody">Message</label><textarea class="in" id="annBody" rows="3" placeholder="Tell your players what's happening…"></textarea></div>
+      <div class="grid2 mt">
+        <div><label class="fl" for="annTarget">Send to</label><select class="in" id="annTarget"></select></div>
+        <div><label class="fl" for="annPri">Priority</label>
+          <select class="in" id="annPri"><option value="normal">Normal</option><option value="important">Important</option><option value="urgent">Urgent</option></select></div>
+      </div>
+      <button class="gold-btn mt" id="annPost" type="button">Publish</button>
+    </div>
+    <div id="annList"></div>
+  </section>
+
+  <!-- ================= MODERATION ================= -->
+  <section class="page" id="page-moderation">
+    <div class="card">
+      <h2>Add to Watchlist</h2>
+      <p class="hint" style="margin-top:6px">Keep your own admin notes on accounts across your sites — who to watch, who is banned, and who is cleared.</p>
+      <div class="grid2 mt">
+        <div><label class="fl" for="modUser">Username</label><input class="in" id="modUser" placeholder="Player username" /></div>
+        <div><label class="fl" for="modSite">Site</label><select class="in" id="modSite"></select></div>
+      </div>
+      <div class="mt"><label class="fl" for="modReason">Reason / note</label><input class="in" id="modReason" placeholder="e.g. Reported for cheating in races" /></div>
+      <div class="mt"><label class="fl" for="modStatus">Status</label>
+        <select class="in" id="modStatus"><option value="watching">Watching</option><option value="banned">Banned</option><option value="cleared">Cleared</option></select></div>
+      <button class="gold-btn mt" id="modAdd" type="button">Add Entry</button>
+    </div>
+    <div id="modList"></div>
+  </section>
+
+  <!-- ================= ACTIVITY ================= -->
+  <section class="page" id="page-activity">
+    <div class="rowflex" style="justify-content:space-between;margin-bottom:6px">
+      <h2 class="font-display" style="font-size:19px">Admin Activity Log</h2>
+      <button class="danger-btn" id="clearLogBtn" type="button" style="display:none">Clear log</button>
+    </div>
+    <p class="hint mb">Every change you make in Admin Control is recorded here, newest first.</p>
+    <div class="card" style="padding:8px 18px"><div id="fullLog"></div></div>
+  </section>
+
+  <!-- ================= ACCESS & ROLES ================= -->
+  <section class="page" id="page-access">
+    <h2 class="font-display" style="font-size:19px;letter-spacing:.04em">Access &amp; Roles</h2>
+    <p class="hint" style="margin:5px 0 15px">Who runs Liugn — 𐌻𐌹𐌿𐌲𐌽, and exactly what each role is allowed to do. The owner sits at the top; every other role is partial and restricted.</p>
+
+    <div class="role-card owner">
+      <div class="role-head">
+        <div class="role-title">Owner — Creator of Liugn — 𐌻𐌹𐌿𐌲𐌽</div>
+        <span class="role-tag full">Full Control</span>
+      </div>
+      <p class="hint" style="margin-top:8px">The game's owner and the only holder of the owner key. This Admin Control room, the websites it governs, and everything published under the Sanctum name belong to the owner. All artwork, designs, names, and content here are the owner's own original work.</p>
+      <div class="role-grid">
+        <div>
+          <div class="role-list-h">THE OWNER CAN</div>
+          <ul class="role-list can">
+            <li>Open this room with the owner key</li>
+            <li>Set every site online, maintenance, or offline</li>
+            <li>Run Global Controls and the master maintenance switch</li>
+            <li>Set currency, starting coins, and daily rewards</li>
+            <li>Post announcements to any or all sites</li>
+            <li>Moderate players and keep the watchlist</li>
+            <li>Read the full activity log</li>
+            <li>Grant and revoke partial administrator access</li>
+          </ul>
+        </div>
+        <div>
+          <div class="role-list-h">OWNERSHIP</div>
+          <ul class="role-list">
+            <li style="padding-left:0">Owns Liugn — 𐌻𐌹𐌿𐌲𐌽 and the Sanctum brand</li>
+            <li style="padding-left:0">Owns the Game Site, Clothes Studio, and Cars Studio</li>
+            <li style="padding-left:0">Final say on every site, building, and account</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="role-card">
+      <div class="role-head">
+        <div class="role-title">Partial Administrator — Buildings &amp; Real Estate</div>
+        <span class="role-tag restricted">Restricted · Buildings Only</span>
+      </div>
+      <p class="hint" style="margin-top:8px">Trusted people the owner brings in to help grow the world — for example, real estate contributors who add houses and buildings to the game. Their access is partial by design: buildings, and nothing else.</p>
+      <div class="role-grid">
+        <div>
+          <div class="role-list-h">THEY CAN</div>
+          <ul class="role-list can">
+            <li>Add new buildings and houses to the game world</li>
+            <li>Work on buildings — place, edit, and update them</li>
+            <li>Work only in the building tools they are given</li>
+          </ul>
+        </div>
+        <div>
+          <div class="role-list-h">THEY CANNOT</div>
+          <ul class="role-list cant">
+            <li>Enter this Admin Control room or use the owner key</li>
+            <li>Change any site's status or the global switches</li>
+            <li>Touch currency, coins, rewards, or player accounts</li>
+            <li>Post announcements</li>
+            <li>Moderate, watch, or ban players</li>
+            <li>See the activity log or grant access to anyone</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <p class="hint">Partial administrator seats are assigned by the owner only, and the owner can revoke them at any time. No other roles exist on this site.</p>
+  </section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">© 2026 The Owner of Liugn — 𐌻𐌹𐌿𐌲𐌽 · Sanctum. Official Admin Control for the LIUGN websites. All names, artwork, and designs on this page are the owner's own original work. Single-file copy for the owner's other itch account — zip this one HTML and upload it as-is; changes made here run live in this open page.</div>
+</footer>
+</div>
+
+<div id="toast" role="status"></div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); };
+  var pad = function(n){ return (n<10?"0":"")+n; };
+  var fmtClock = function(d){ return pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds()); };
+  var fmtDate = function(ts){ var d=new Date(ts); return d.toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}); };
+  var fmtDur = function(ms){ var s=Math.floor(ms/1000); var h=Math.floor(s/3600), m=Math.floor((s%3600)/60), ss=s%60; return (h>0? h+":"+pad(m)+":"+pad(ss) : m+":"+pad(ss)); };
+
+  /* ---------------- STATE (seeded with the three real LIUGN sites) ---------------- */
+  var nextId = 100;
+  var sessionStart = Date.now();
+  var state = {
+    tab: "overview",
+    settings: { globalMaintenance:false, globalAnnouncement:"", defaultCurrencyName:"L-Coins", defaultStartingCoins:500, defaultDailyReward:50 },
+    sites: [
+      { id:1, name:"LIUGN Game Site", slug:"liugn-game-site", description:"Main game hub — accounts, outfits, cars, wallet and community wall for the GTA-style game.", kind:"Game Site", status:"online", signupsOpen:true, maintenanceMessage:"", currencyName:"L-Coins", startingCoins:500, dailyReward:50, statusSince:Date.now(), lastChecked:Date.now(), checks:1 },
+      { id:2, name:"LIUGN Clothes Studio", slug:"liugn-clothes-studio", description:"Clothes blender — design realistic human outfits, preview them, and publish to the community.", kind:"Clothes Studio", status:"online", signupsOpen:true, maintenanceMessage:"", currencyName:"L-Bucks", startingCoins:1000, dailyReward:75, statusSince:Date.now(), lastChecked:Date.now(), checks:1 },
+      { id:3, name:"LIUGN Cars Studio", slug:"liugn-cars-studio", description:"Cars blender — build smooth, drivable cars with real wheels, paint, rims, spoilers and neon.", kind:"Cars Studio", status:"online", signupsOpen:true, maintenanceMessage:"", currencyName:"L-Coins", startingCoins:500, dailyReward:50, statusSince:Date.now(), lastChecked:Date.now(), checks:1 }
+    ],
+    announcements: [],
+    moderation: [],
+    logs: []
+  };
+  var editingSiteId = null, confirmDeleteSiteId = null, confirmClearLog = false;
+
+  function log(action, detail){
+    state.logs.unshift({ id: nextId++, action:action, detail:detail||"", at:Date.now() });
+    if(state.logs.length>100) state.logs.length = 100;
+    $("liveLast").textContent = action;
+  }
+  log("System initialized", "Registered Game Site, Clothes Studio, and Cars Studio");
+
+  var toastTimer = null;
+  function toast(msg){
+    var t = $("toast"); t.textContent = msg; t.classList.add("on");
+    clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove("on"); }, 3200);
+  }
+
+  var STATUS = {
+    online:      { label:"Online",      pill:"st-online",      pulse:"pulse-on" },
+    maintenance: { label:"Maintenance", pill:"st-maintenance", pulse:"pulse-maint" },
+    offline:     { label:"Offline",     pill:"st-offline",     pulse:"pulse-off" }
+  };
+
+  /* ---------------- TABS ---------------- */
+  var TABS = [["overview","Overview"],["sites","Sites"],["announce","Announce"],["moderation","Moderation"],["activity","Activity"],["access","Access & Roles"]];
+  function renderTabs(){
+    var activeAnns = state.announcements.filter(function(a){return a.active;}).length;
+    var banned = state.moderation.filter(function(m){return m.status==="banned";}).length;
+    var counts = { sites:" ("+state.sites.length+")", announce: activeAnns? " ("+activeAnns+")":"", moderation: banned? " ("+banned+")":"" };
+    $("tabBar").innerHTML = TABS.map(function(t){
+      return '<button class="tab'+(state.tab===t[0]?" active":"")+'" data-tab="'+t[0]+'" type="button" aria-pressed="'+(state.tab===t[0])+'">'+t[1]+(counts[t[0]]||"")+'</button>';
+    }).join("");
+    Array.prototype.forEach.call(document.querySelectorAll(".tab"), function(b){
+      b.addEventListener("click", function(){ state.tab = b.dataset.tab; render(); });
+    });
+    TABS.forEach(function(t){ $("page-"+t[0]).classList.toggle("on", state.tab===t[0]); });
+  }
+
+  /* ---------------- HEADER / BANNERS ---------------- */
+  function renderHeader(){
+    var gm = state.settings.globalMaintenance;
+    $("sysPill").textContent = gm ? "⛔ ALL PAUSED" : "✓ SYSTEMS LIVE";
+    $("sysPill").className = "sys-pill " + (gm ? "paused" : "live");
+    $("maintBanner").style.display = gm ? "block" : "none";
+    var ann = state.settings.globalAnnouncement;
+    if(ann){ $("castBanner").style.display = "block"; $("castBanner").innerHTML = "📣 <strong>Broadcasting to all sites:</strong> " + esc(ann); }
+    else $("castBanner").style.display = "none";
+    var sw = $("globalMaintSwitch");
+    sw.setAttribute("aria-checked", gm ? "true" : "false");
+  }
+
+  /* ---------------- OVERVIEW ---------------- */
+  function renderStats(){
+    var on = state.sites.filter(function(s){return s.status==="online";}).length;
+    var mt = state.sites.filter(function(s){return s.status==="maintenance";}).length;
+    var off = state.sites.filter(function(s){return s.status==="offline";}).length;
+    var su = state.sites.filter(function(s){return s.signupsOpen;}).length;
+    $("statStrip").innerHTML =
+      '<div class="stat"><b style="color:var(--green-t)">'+on+'</b><span>Online</span></div>' +
+      '<div class="stat"><b style="color:var(--amber-t)">'+mt+'</b><span>Maint.</span></div>' +
+      '<div class="stat"><b style="color:var(--red-t)">'+off+'</b><span>Offline</span></div>' +
+      '<div class="stat"><b style="color:var(--accent2)">'+su+'</b><span>Sign-ups open</span></div>';
+    $("liveUp").textContent = on + " / " + state.sites.length;
+  }
+
+  function siteCard(s){
+    var meta = STATUS[s.status];
+    var cls = s.status==="maintenance" ? " warn" : s.status==="offline" ? " bad" : "";
+    var seg = ["online","maintenance","offline"].map(function(st){
+      return '<button type="button" data-site="'+s.id+'" data-status="'+st+'" class="'+(s.status===st ? "sel-"+st : "")+'" aria-pressed="'+(s.status===st)+'">'+st+'</button>';
+    }).join("");
+    return '<article class="site-card'+cls+'">' +
+      '<div class="rowflex" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap">' +
+        '<div><div class="site-kind">'+esc(s.kind)+'</div><div class="site-name">'+esc(s.name)+'</div></div>' +
+        '<span class="status-pill '+meta.pill+'"><i></i>'+meta.label+'</span></div>' +
+      '<p class="site-desc">'+esc(s.description)+'</p>' +
+      '<div class="site-meta"><span>🪙 '+s.startingCoins+' '+esc(s.currencyName)+' to start</span><span>🎁 '+s.dailyReward+'/day</span><span>'+(s.signupsOpen ? "✅ Sign-ups open" : "🔒 Sign-ups closed")+'</span></div>' +
+      (s.status==="maintenance" && s.maintenanceMessage ? '<p class="maint-note">“'+esc(s.maintenanceMessage)+'”</p>' : "") +
+      '<div class="seg" role="group" aria-label="Set status for '+esc(s.name)+'">'+seg+'</div>' +
+      '<button class="link-btn" type="button" data-detail="'+s.id+'">Full settings →</button>' +
+    '</article>';
+  }
+
+  function renderSiteGrid(){
+    $("siteGrid").innerHTML = state.sites.map(siteCard).join("");
+    $("noSites").innerHTML = state.sites.length ? "" :
+      '<div class="card" style="border-style:dashed;text-align:center;padding:28px 18px"><h3>No websites registered yet</h3>' +
+      '<p class="hint" style="margin:7px 0 14px">Register your Game Site, Clothes Studio, and Cars Studio to control them from here.</p>' +
+      '<button class="gold-btn" id="reseedBtn" type="button">Register my 3 sites</button></div>';
+    var rb = $("reseedBtn");
+    if(rb) rb.addEventListener("click", reseed);
+    Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function(b){
+      b.addEventListener("click", function(){ setSiteStatus(parseInt(b.dataset.site,10), b.dataset.status, true); });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-detail]"), function(b){
+      b.addEventListener("click", function(){ state.tab = "sites"; editingSiteId = parseInt(b.dataset.detail,10); render(); window.scrollTo({top:0,behavior:"smooth"}); });
+    });
+  }
+
+  function reseed(){
+    var now = Date.now();
+    state.sites = [
+      { id:nextId++, name:"LIUGN Game Site", slug:"liugn-game-site", description:"Main game hub — accounts, outfits, cars, wallet and community wall for the GTA-style game.", kind:"Game Site", status:"online", signupsOpen:true, maintenanceMessage:"", currencyName:"L-Coins", startingCoins:500, dailyReward:50, statusSince:now, lastChecked:now, checks:1 },
+      { id:nextId++, name:"LIUGN Clothes Studio", slug:"liugn-clothes-studio", description:"Clothes blender — design realistic human outfits, preview them, and publish to the community.", kind:"Clothes Studio", status:"online", signupsOpen:true, maintenanceMessage:"", currencyName:"L-Bucks", startingCoins:1000, dailyReward:75, statusSince:now, lastChecked:now, checks:1 },
+      { id:nextId++, name:"LIUGN Cars Studio", slug:"liugn-cars-studio", description:"Cars blender — build smooth, drivable cars with real wheels, paint, rims, spoilers and neon.", kind:"Cars Studio", status:"online", signupsOpen:true, maintenanceMessage:"", currencyName:"L-Coins", startingCoins:500, dailyReward:50, statusSince:now, lastChecked:now, checks:1 }
+    ];
+    log("System initialized", "Registered Game Site, Clothes Studio, and Cars Studio");
+    toast("Your 3 sites are registered.");
+    render();
+  }
+
+  function setSiteStatus(id, status, announce){
+    var s = state.sites.filter(function(x){return x.id===id;})[0];
+    if(!s || s.status===status) { if(s && s.status===status) return; }
+    s.status = status; s.statusSince = Date.now(); s.lastChecked = Date.now();
+    log("Site updated", s.name + " — status → " + status);
+    if(announce) toast(s.name + " is now " + STATUS[status].label + ".");
+    render();
+  }
+
+  function renderTracking(){
+    $("trackList").innerHTML = state.sites.map(function(s){
+      var meta = STATUS[s.status];
+      return '<div class="track-row">' +
+        '<span class="nm"><span class="pulse-dot '+meta.pulse+'"></span>'+esc(s.name)+'</span>' +
+        '<span class="cell">Status <b>'+meta.label+'</b></span>' +
+        '<span class="cell">In status <b data-dur="'+s.statusSince+'">'+fmtDur(Date.now()-s.statusSince)+'</b></span>' +
+        '<span class="cell">Last checked <b data-checked="'+s.id+'">'+fmtClock(new Date(s.lastChecked))+'</b></span>' +
+        '<span class="cell">Checks <b>'+s.checks+'</b></span>' +
+        '<span class="cell">'+(s.signupsOpen ? "Sign-ups open" : "Sign-ups closed")+'</span>' +
+      '</div>';
+    }).join("") || '<p class="empty-note">No sites to track yet.</p>';
+  }
+
+  function logRows(list){
+    if(!list.length) return '<p class="empty-note">Nothing yet — your admin actions will be logged here.</p>';
+    return list.map(function(l){
+      return '<div class="log-row"><span class="diamond">◆</span><span class="what"><b>'+esc(l.action)+'</b>'+(l.detail ? ' <span>— '+esc(l.detail)+'</span>' : '')+'</span><time>'+fmtDate(l.at)+'</time></div>';
+    }).join("");
+  }
+  function renderRecent(){ $("recentLog").innerHTML = logRows(state.logs.slice(0,5)); }
+
+  /* ---------------- SITES TAB ---------------- */
+  function renderSitesTab(){
+    var wrap = $("sitesList");
+    wrap.innerHTML = state.sites.map(function(s){
+      var meta = STATUS[s.status];
+      var edit = editingSiteId === s.id;
+      var html = '<article class="item-card">' +
+        '<div class="item-head"><div><div class="item-title">'+esc(s.name)+'</div>' +
+        '<div class="item-sub">'+esc(s.kind)+' · slug: '+esc(s.slug)+'</div></div>' +
+        '<span class="status-pill '+meta.pill+'"><i></i>'+meta.label+'</span></div>' +
+        '<p class="item-body" style="color:var(--dim)">'+esc(s.description)+'</p>' +
+        '<button class="ghost-btn mt" type="button" data-edit="'+s.id+'">'+(edit ? "Close settings" : "⚙️ Edit settings")+'</button>';
+      if(edit){
+        html += '<div class="edit-box">' +
+          '<div class="grid2">' +
+            '<div><label class="fl" for="e-name-'+s.id+'">Site name</label><input class="in" id="e-name-'+s.id+'" value="'+esc(s.name)+'" /></div>' +
+            '<div><label class="fl" for="e-kind-'+s.id+'">Type</label><select class="in" id="e-kind-'+s.id+'">' +
+              ["Game Site","Clothes Studio","Cars Studio","Website","Community"].map(function(k){ return '<option'+(s.kind===k?" selected":"")+'>'+k+'</option>'; }).join("") + '</select></div>' +
+          '</div>' +
+          '<div class="mt"><label class="fl" for="e-desc-'+s.id+'">Description</label><textarea class="in" id="e-desc-'+s.id+'" rows="2">'+esc(s.description)+'</textarea></div>' +
+          '<div class="grid2 mt">' +
+            '<div><label class="fl" for="e-status-'+s.id+'">Status</label><select class="in" id="e-status-'+s.id+'">' +
+              '<option value="online"'+(s.status==="online"?" selected":"")+'>Online</option><option value="maintenance"'+(s.status==="maintenance"?" selected":"")+'>Maintenance</option><option value="offline"'+(s.status==="offline"?" selected":"")+'>Offline</option></select></div>' +
+            '<div><label class="fl">Sign-ups</label><button class="switch-row" type="button" role="switch" id="e-signups-'+s.id+'" aria-checked="'+(s.signupsOpen)+'"><span class="t"><b>Sign-ups open</b></span><span class="sw" aria-hidden="true"></span></button></div>' +
+          '</div>' +
+          '<div class="mt"><label class="fl" for="e-maint-'+s.id+'">Maintenance message (players see this)</label><input class="in" id="e-maint-'+s.id+'" value="'+esc(s.maintenanceMessage)+'" placeholder="e.g. Back soon — adding new streets!" /></div>' +
+          '<div class="grid3 mt">' +
+            '<div><label class="fl" for="e-curr-'+s.id+'">Currency</label><input class="in" id="e-curr-'+s.id+'" value="'+esc(s.currencyName)+'" /></div>' +
+            '<div><label class="fl" for="e-start-'+s.id+'">Starting coins</label><input class="in" id="e-start-'+s.id+'" type="number" min="0" value="'+s.startingCoins+'" /></div>' +
+            '<div><label class="fl" for="e-daily-'+s.id+'">Daily reward</label><input class="in" id="e-daily-'+s.id+'" type="number" min="0" value="'+s.dailyReward+'" /></div>' +
+          '</div>' +
+          '<div class="rowflex mt">' +
+            '<button class="gold-btn" type="button" data-save="'+s.id+'">Save changes</button>' +
+            (confirmDeleteSiteId === s.id
+              ? '<button class="danger-solid" type="button" data-delconfirm="'+s.id+'">Tap again to confirm removal</button>'
+              : '<button class="danger-btn" type="button" data-del="'+s.id+'">Remove site</button>') +
+          '</div></div>';
+      }
+      return html + '</article>';
+    }).join("") || '<p class="empty-note">No websites registered yet — add one above.</p>';
+
+    Array.prototype.forEach.call(wrap.querySelectorAll("[data-edit]"), function(b){
+      b.addEventListener("click", function(){ var id = parseInt(b.dataset.edit,10); editingSiteId = (editingSiteId===id ? null : id); confirmDeleteSiteId = null; render(); });
+    });
+    state.sites.forEach(function(s){
+      if(editingSiteId !== s.id) return;
+      var sw = $("e-signups-"+s.id);
+      if(sw) sw.addEventListener("click", function(){ sw.setAttribute("aria-checked", sw.getAttribute("aria-checked")==="true" ? "false" : "true"); });
+      var saveBtn = wrap.querySelector('[data-save="'+s.id+'"]');
+      if(saveBtn) saveBtn.addEventListener("click", function(){ saveSite(s.id); });
+      var delBtn = wrap.querySelector('[data-del="'+s.id+'"]');
+      if(delBtn) delBtn.addEventListener("click", function(){ confirmDeleteSiteId = s.id; render(); });
+      var delC = wrap.querySelector('[data-delconfirm="'+s.id+'"]');
+      if(delC) delC.addEventListener("click", function(){
+        state.sites = state.sites.filter(function(x){ return x.id !== s.id; });
+        editingSiteId = null; confirmDeleteSiteId = null;
+        log("Site removed", s.name); toast(s.name + " removed from Admin Control."); render();
+      });
+    });
+  }
+
+  function saveSite(id){
+    var s = state.sites.filter(function(x){return x.id===id;})[0]; if(!s) return;
+    var parts = [];
+    var newStatus = $("e-status-"+id).value;
+    var newSignups = $("e-signups-"+id).getAttribute("aria-checked") === "true";
+    var newStart = Math.max(0, parseInt($("e-start-"+id).value,10) || 0);
+    if(newStatus !== s.status) parts.push("status → " + newStatus);
+    if(newSignups !== s.signupsOpen) parts.push(newSignups ? "sign-ups opened" : "sign-ups closed");
+    if(newStart !== s.startingCoins) parts.push("starting coins → " + newStart);
+    s.name = $("e-name-"+id).value.trim() || s.name;
+    s.kind = $("e-kind-"+id).value;
+    s.description = $("e-desc-"+id).value;
+    if(newStatus !== s.status){ s.status = newStatus; s.statusSince = Date.now(); }
+    s.signupsOpen = newSignups;
+    s.maintenanceMessage = $("e-maint-"+id).value;
+    s.currencyName = $("e-curr-"+id).value.trim() || "L-Coins";
+    s.startingCoins = newStart;
+    s.dailyReward = Math.max(0, parseInt($("e-daily-"+id).value,10) || 0);
+    s.lastChecked = Date.now();
+    editingSiteId = null;
+    log("Site updated", s.name + (parts.length ? " — " + parts.join(", ") : ""));
+    toast("Saved — " + s.name + ".");
+    render();
+  }
+
+  /* ---------------- ANNOUNCE ---------------- */
+  function siteOptions(allLabel){
+    var html = '<option value="all">'+allLabel+'</option>';
+    state.sites.forEach(function(s){ html += '<option value="'+esc(s.slug)+'">'+esc(s.name)+'</option>'; });
+    return html;
+  }
+  function renderAnnounce(){
+    $("annTarget").innerHTML = siteOptions("🌍 All sites");
+    var wrap = $("annList");
+    if(!state.announcements.length){ wrap.innerHTML = '<p class="empty-note">No announcements yet. Post your first one above.</p>'; return; }
+    wrap.innerHTML = state.announcements.map(function(a){
+      var targetName = a.target === "all" ? "All sites" : a.target;
+      return '<article class="item-card'+(a.active ? "" : " hidden-item")+'">' +
+        '<div class="item-title">'+esc(a.title)+'<span class="pri pri-'+a.priority+'">'+a.priority+'</span></div>' +
+        '<div class="item-sub">'+esc(targetName)+' · '+fmtDate(a.at)+' · '+(a.active ? "Live" : "Hidden")+'</div>' +
+        '<p class="item-body">'+esc(a.body)+'</p>' +
+        '<div class="rowflex mt"><button class="small-btn" type="button" data-ann-toggle="'+a.id+'">'+(a.active ? "Hide" : "Show")+'</button>' +
+        '<button class="small-danger" type="button" data-ann-del="'+a.id+'">Delete</button></div></article>';
+    }).join("");
+    Array.prototype.forEach.call(wrap.querySelectorAll("[data-ann-toggle]"), function(b){
+      b.addEventListener("click", function(){
+        var a = state.announcements.filter(function(x){return x.id===parseInt(b.dataset.annToggle,10);})[0];
+        if(a){ a.active = !a.active; render(); }
+      });
+    });
+    Array.prototype.forEach.call(wrap.querySelectorAll("[data-ann-del]"), function(b){
+      b.addEventListener("click", function(){
+        var a = state.announcements.filter(function(x){return x.id===parseInt(b.dataset.annDel,10);})[0];
+        state.announcements = state.announcements.filter(function(x){return x.id!==parseInt(b.dataset.annDel,10);});
+        if(a) log("Announcement deleted", a.title);
+        render();
+      });
+    });
+  }
+
+  /* ---------------- MODERATION ---------------- */
+  function renderModeration(){
+    $("modSite").innerHTML = siteOptions("All sites");
+    var wrap = $("modList");
+    if(!state.moderation.length){ wrap.innerHTML = '<p class="empty-note">Watchlist is empty — nice and quiet.</p>'; return; }
+    var badges = { banned:["mb-banned","🚫 Banned"], cleared:["mb-cleared","✅ Cleared"], watching:["mb-watching","👀 Watching"] };
+    wrap.innerHTML = state.moderation.map(function(m){
+      var b = badges[m.status];
+      var seg = ["watching","banned","cleared"].map(function(st){
+        return '<button class="small-btn'+(m.status===st ? " sel" : "")+'" type="button" data-mod-set="'+m.id+':'+st+'" aria-pressed="'+(m.status===st)+'">'+st+'</button>';
+      }).join("");
+      return '<article class="item-card"><div class="item-head"><div class="item-title">'+esc(m.username)+'</div>' +
+        '<span class="mod-badge '+b[0]+'">'+b[1]+'</span></div>' +
+        '<p class="item-body" style="color:var(--dim)">'+esc(m.reason || "No reason noted")+' · '+(m.siteSlug==="all" ? "All sites" : esc(m.siteSlug))+' · '+fmtDate(m.at)+'</p>' +
+        '<div class="rowflex mt">'+seg+'<span style="flex:1"></span><button class="small-danger" type="button" data-mod-del="'+m.id+'">Remove</button></div></article>';
+    }).join("");
+    Array.prototype.forEach.call(wrap.querySelectorAll("[data-mod-set]"), function(btn){
+      btn.addEventListener("click", function(){
+        var parts = btn.dataset.modSet.split(":"); var id = parseInt(parts[0],10), st = parts[1];
+        var m = state.moderation.filter(function(x){return x.id===id;})[0];
+        if(m && m.status !== st){ m.status = st; log("Moderation updated", m.username + " → " + st); render(); }
+      });
+    });
+    Array.prototype.forEach.call(wrap.querySelectorAll("[data-mod-del]"), function(btn){
+      btn.addEventListener("click", function(){
+        var id = parseInt(btn.dataset.modDel,10);
+        var m = state.moderation.filter(function(x){return x.id===id;})[0];
+        state.moderation = state.moderation.filter(function(x){return x.id!==id;});
+        if(m) log("Moderation removed", m.username);
+        render();
+      });
+    });
+  }
+
+  /* ---------------- ACTIVITY ---------------- */
+  function renderActivity(){
+    $("fullLog").innerHTML = logRows(state.logs);
+    var btn = $("clearLogBtn");
+    btn.style.display = state.logs.length ? "block" : "none";
+    btn.textContent = confirmClearLog ? "Tap again to clear all" : "Clear log";
+    btn.className = confirmClearLog ? "danger-solid" : "danger-btn";
+  }
+
+  /* ---------------- GLOBAL FORM ---------------- */
+  function syncGlobalForm(){
+    $("gAnn").value = state.settings.globalAnnouncement;
+    $("gCurr").value = state.settings.defaultCurrencyName;
+    $("gStart").value = state.settings.defaultStartingCoins;
+    $("gDaily").value = state.settings.defaultDailyReward;
+  }
+
+  /* ---------------- MASTER RENDER ---------------- */
+  function render(){
+    renderHeader(); renderTabs(); renderStats(); renderSiteGrid(); renderTracking();
+    renderRecent(); renderSitesTab(); renderAnnounce(); renderModeration(); renderActivity();
+  }
+
+  /* ---------------- EVENTS ---------------- */
+  $("allOnline").addEventListener("click", function(){ setAllStatus("online"); });
+  $("allMaint").addEventListener("click", function(){ setAllStatus("maintenance"); });
+  $("allOff").addEventListener("click", function(){ setAllStatus("offline"); });
+  function setAllStatus(st){
+    var now = Date.now(), changed = false;
+    state.sites.forEach(function(s){ if(s.status !== st){ s.status = st; s.statusSince = now; changed = true; } s.lastChecked = now; });
+    log("All sites status changed", "All sites → " + st);
+    toast(changed ? "Every site is now " + STATUS[st].label + "." : "Every site was already " + STATUS[st].label + ".");
+    render();
+  }
+  $("globalMaintSwitch").addEventListener("click", function(){
+    state.settings.globalMaintenance = !state.settings.globalMaintenance;
+    log("Global settings updated", state.settings.globalMaintenance ? "Global maintenance ON — all sites paused" : "Global maintenance OFF");
+    toast(state.settings.globalMaintenance ? "Global Maintenance ON — all sites paused." : "Global Maintenance OFF — sites live.");
+    render();
+  });
+  $("gSave").addEventListener("click", function(){
+    state.settings.globalAnnouncement = $("gAnn").value.trim();
+    state.settings.defaultCurrencyName = $("gCurr").value.trim() || "L-Coins";
+    state.settings.defaultStartingCoins = Math.max(0, parseInt($("gStart").value,10) || 0);
+    state.settings.defaultDailyReward = Math.max(0, parseInt($("gDaily").value,10) || 0);
+    log("Global settings updated", "Defaults / announcement changed");
+    toast("Global Controls saved.");
+    render(); syncGlobalForm();
+  });
+  $("gApply").addEventListener("click", function(){
+    state.sites.forEach(function(s){
+      s.currencyName = state.settings.defaultCurrencyName;
+      s.startingCoins = state.settings.defaultStartingCoins;
+      s.dailyReward = state.settings.defaultDailyReward;
+    });
+    log("Defaults applied to all sites", state.settings.defaultStartingCoins + " " + state.settings.defaultCurrencyName + " starting, " + state.settings.defaultDailyReward + "/day");
+    toast("Coin defaults applied to every site.");
+    render();
+  });
+  $("seeAllActivity").addEventListener("click", function(){ state.tab = "activity"; render(); window.scrollTo({top:0,behavior:"smooth"}); });
+
+  $("addSiteToggle").addEventListener("click", function(){
+    var c = $("addSiteCard"); c.style.display = c.style.display === "none" ? "block" : "none";
+  });
+  $("addSiteBtn").addEventListener("click", function(){
+    var name = $("newName").value.trim(); if(!name){ toast("Give the website a name first."); return; }
+    var slug = ($("newSlug").value.trim() || name).toLowerCase().replace(/[^a-z0-9-]/g, "-");
+    var now = Date.now();
+    state.sites.push({ id:nextId++, name:name, slug:slug, description:$("newDesc").value, kind:$("newKind").value, status:"online", signupsOpen:true, maintenanceMessage:"", currencyName:"L-Coins", startingCoins:500, dailyReward:50, statusSince:now, lastChecked:now, checks:1 });
+    log("Site added", name + " (" + slug + ")");
+    $("newName").value = ""; $("newSlug").value = ""; $("newDesc").value = "";
+    $("addSiteCard").style.display = "none";
+    toast(name + " added to Admin Control.");
+    render();
+  });
+
+  $("annPost").addEventListener("click", function(){
+    var title = $("annTitle").value.trim(), body = $("annBody").value.trim();
+    if(!title || !body){ toast("Add a title and a message first."); return; }
+    var target = $("annTarget").value, pri = $("annPri").value;
+    state.announcements.unshift({ id:nextId++, title:title, body:body, target:target, priority:pri, active:true, at:Date.now() });
+    if(state.announcements.length > 50) state.announcements.length = 50;
+    log("Announcement posted", title + " → " + (target === "all" ? "All sites" : target));
+    $("annTitle").value = ""; $("annBody").value = "";
+    toast("Announcement published.");
+    render();
+  });
+
+  $("modAdd").addEventListener("click", function(){
+    var user = $("modUser").value.trim(); if(!user){ toast("Add a username first."); return; }
+    var status = $("modStatus").value;
+    state.moderation.unshift({ id:nextId++, username:user, siteSlug:$("modSite").value, reason:$("modReason").value.trim(), status:status, at:Date.now() });
+    if(state.moderation.length > 50) state.moderation.length = 50;
+    log("Moderation entry added", user + " — " + status);
+    $("modUser").value = ""; $("modReason").value = "";
+    toast(user + " added to the watchlist.");
+    render();
+  });
+
+  $("clearLogBtn").addEventListener("click", function(){
+    if(!confirmClearLog){ confirmClearLog = true; renderActivity(); return; }
+    state.logs = []; confirmClearLog = false;
+    $("liveLast").textContent = "Log cleared";
+    toast("Activity log cleared.");
+    render();
+  });
+
+  /* Download: hand back this exact page as one file, ready to zip for itch */
+  $("dlBtn").addEventListener("click", function(){
+    var html = "<!doctype html>\n" + document.documentElement.outerHTML;
+    var blob = new Blob([html], { type:"text/html" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "liugn-admin-control.html";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+    toast("Saved liugn-admin-control.html — zip it and upload to itch.");
+  });
+
+  /* ---------------- LIVE TRACKING LOOPS ---------------- */
+  setInterval(function(){
+    $("liveClock").textContent = fmtClock(new Date());
+    $("liveSession").textContent = fmtDur(Date.now() - sessionStart);
+    /* tick the "in status" timers without a full re-render */
+    Array.prototype.forEach.call(document.querySelectorAll("[data-dur]"), function(el){
+      el.textContent = fmtDur(Date.now() - parseInt(el.getAttribute("data-dur"),10));
+    });
+  }, 1000);
+  setInterval(function(){
+    var now = Date.now();
+    state.sites.forEach(function(s){ s.lastChecked = now; s.checks++; });
+    if(state.tab === "overview") renderTracking();
+  }, 10000);
+
+  /* ---------------- LOGIN GATE ---------------- */
+  var loginAttempts = 0;
+  var loginLocked = false;
+  var MAX_LOGIN_ATTEMPTS = 3;
+  var OWNER_USERNAME = "demolayorfreemason@gmail.com";
+  var OWNER_PASSWORD = "1993";
+  function lockLogin(){
+    loginLocked = true;
+    $("userInput").disabled = true;
+    $("keyInput").disabled = true;
+    $("unlockBtn").disabled = true;
+    $("unlockBtn").textContent = "Locked Out";
+    $("keyError").textContent = "Access denied — login locked out after three failed tries. Admin Control stays locked.";
+    $("keyError").style.display = "block";
+  }
+  $("gateForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    if(loginLocked) return;
+    var u = $("userInput").value.trim().toLowerCase();
+    var k = $("keyInput").value.trim();
+    if(u === OWNER_USERNAME && k === OWNER_PASSWORD){
+      loginAttempts = 0;
+      $("keyError").style.display = "none";
+      $("gate").classList.add("hidden");
+      $("app").classList.add("on");
+      log("Owner signed in", "Admin Control unlocked with the owner login");
+      render();
+      toast("Welcome back, Owner. All sites live on the board.");
+    } else {
+      loginAttempts++;
+      var triesLeft = MAX_LOGIN_ATTEMPTS - loginAttempts;
+      $("keyInput").value = "";
+      var card = $("gateCard"); card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake");
+      if(loginAttempts >= MAX_LOGIN_ATTEMPTS){
+        lockLogin();
+      } else {
+        $("keyError").textContent = (!u.length || !k.length)
+          ? "Access denied — enter your username and password. " + triesLeft + (triesLeft === 1 ? " try" : " tries") + " left before lockout."
+          : "Access denied — wrong username or password. " + triesLeft + (triesLeft === 1 ? " try" : " tries") + " left before lockout.";
+        $("keyError").style.display = "block";
+        $("keyInput").focus();
+      }
+    }
+  });
+  $("lockBtn").addEventListener("click", function(){
+    $("app").classList.remove("on");
+    $("gate").classList.remove("hidden");
+    loginAttempts = 0;
+    loginLocked = false;
+    $("userInput").disabled = false;
+    $("keyInput").disabled = false;
+    $("unlockBtn").disabled = false;
+    $("unlockBtn").textContent = "Unlock Admin Control";
+    $("userInput").value = ""; $("keyInput").value = ""; $("keyError").style.display = "none";
+    window.scrollTo({top:0});
+  });
+
+  /* ---------------- INIT ---------------- */
+  $("liveClock").textContent = fmtClock(new Date());
+  syncGlobalForm();
+  render();
+})();
+</script>
+</body>
+</html>
